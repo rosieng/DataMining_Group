@@ -547,3 +547,47 @@ sns.barplot(
 plt.title("Decision Tree Feature Importance")
 plt.show()
 
+# ==========================
+# 21.K-MEAN
+# ==========================
+print("\nSTART KMEANS\n")
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+cluster_vars = [
+    "occupied_days",
+    "minimum_nights",
+    "number_of_reviews",
+    "review_intensity"]
+scaler = StandardScaler()
+cluster_data = scaler.fit_transform(df[cluster_vars])
+# Elbow Method
+inertia = []
+for k in range(1,11):
+    km = KMeans(
+        n_clusters=k,
+        random_state=42,
+        n_init=10)
+    km.fit(cluster_data)
+    inertia.append(km.inertia_)
+# Final model
+kmeans = KMeans(
+    n_clusters=4,
+    random_state=42,
+    n_init=10)
+df["cluster"] = kmeans.fit_predict(cluster_data)
+print("\nCluster Counts")
+print(df["cluster"].value_counts())
+cluster_profile = df.groupby("cluster").agg({
+    "price": "mean",
+    "occupied_days": "mean",
+    "minimum_nights": "mean",
+    "number_of_reviews": "mean",
+    "review_intensity": "mean"})
+print("\nCluster Profile")
+print(cluster_profile.round(2))
+plt.figure(figsize=(8,5))
+sns.countplot(
+    x="cluster",
+    data=df)
+plt.title("Cluster Distribution")
+plt.show()
