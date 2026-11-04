@@ -117,9 +117,16 @@ tree.fit(X_train, y_train)
 y_pred_tree = (tree.predict(X_test))
 
 # 16.Random Forest
-rf = RandomForestRegressor(n_estimators=200, random_state=42, n_jobs=-1)
+from sklearn.ensemble import RandomForestRegressor
+rf = RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)
 rf.fit(X_train, y_train)
-y_pred_rf = (rf.predict(X_test))
+y_pred_rf = rf.predict(X_test)
+mae_rf = mean_absolute_error(y_test, y_pred_rf)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+r2_rf = r2_score(y_test, y_pred_rf)
+print(mae_rf)
+print(rmse_rf)
+print(r2_rf)
 
 # 17.Evalution
 def evaluate_model(y_true,y_pred):
