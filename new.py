@@ -36,6 +36,7 @@ df["bathrooms_num"] = (df["bathrooms_text"].str.extract(r"(\d+\.?\d*)").astype(f
 df["bathrooms_num"] = (df["bathrooms_num"].fillna(df["bathrooms_num"].median()))
 
 # 3.Feature selection
+# why downsize from 90 var. to 15/16 vars
 features = [
     "room_type",
     "property_type",
@@ -97,9 +98,11 @@ y_pred_lr = lr.predict(X_test)
 # 11.Random Forest
 rf = RandomForestRegressor(
     n_estimators=300,
+    max_depth=15,
+    min_samples_leaf=5,
     random_state=42,
-    n_jobs=-1
-)
+    n_jobs=-1)
+
 rf.fit(X_train, y_train)
 y_pred_rf = rf.predict(X_test)
 
@@ -121,12 +124,22 @@ results = pd.DataFrame({
 })
 print(results)
 
+# Train vs Test Performance
+y_pred_train = rf.predict(X_train)
+train_r2 = r2_score(y_train, y_pred_train)
+test_r2 = r2_score(y_test, y_pred_rf)
+print("Train R2:", train_r2)
+print("Test R2:", test_r2)
+
+# Random Forest: setup (hyperparameters)?
+
 # Random Forest Importance Features
 importance_df = pd.DataFrame({"Feature": X.columns, "Importance": rf.feature_importances_})
 importance_df = (importance_df.sort_values("Importance", ascending=False))
-print(importance_df.head(15))
+print(importance_df.head(15).sort_values(ascending=False, by=["Importance"]))
 
-# Cross validation
+# Cross validation : check if model is overfitted or not
+# Test RMSE ~ CV RMSE
 cv_rf = np.sqrt(
     -cross_val_score(
         rf,
